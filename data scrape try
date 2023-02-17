@@ -3,13 +3,14 @@
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
+n = 1
 
 # Define a list of URLs for different categories
-categories = ["https://www.trendyol.com/kedi-mamasi-x-c103588"]
+categories = ["https://www.trendyol.com/kedi-mamasi-x-c103588","https://www.trendyol.com/kedi-kumu-x-c103584"]
 all_products = []
 for category in categories:
     products = {}
-    # Loop through the first 4 pages of the category
+    # Loop through the first n pages of the category
     for i in range(1, 1+1):
       # Build the URL for the current page
         url = category + "?sst=MOST_RATED&pi=" + str(i)
