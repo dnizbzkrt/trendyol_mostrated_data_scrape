@@ -10,8 +10,8 @@ categories = ["https://www.trendyol.com/kedi-mamasi-x-c103588","https://www.tren
 all_products = []
 for category in categories:
     products = {}
-    # Loop through the first n pages of the category
-    for i in range(1, n+1):
+    # Loop through the first 4 pages of the category
+    for i in range(1, 1+1):
       # Build the URL for the current page
         url = category + "?sst=MOST_RATED&pi=" + str(i)
         page = requests.get(url)
@@ -20,6 +20,9 @@ for category in categories:
         header = soup.find('div', class_='dscrptn')
         text = header.h1.text
         # Extract information for each product on the page
+        x=soup.find_all("div",class_="p-card-wrppr with-campaign-view add-to-bs-card")
+        product_ids = x if x!=[] else soup.find_all("div",class_="p-card-wrppr with-campaign-view") 
+        
         product_rates = soup.find_all('span', class_='ratingCount')
         product_brands = soup.find_all('span', class_="prdct-desc-cntnr-ttl")
         product_names = soup.find_all('span', class_="prdct-desc-cntnr-name hasRatings")
@@ -43,16 +46,17 @@ for category in categories:
             sub_rank.append("Not Found")
 
         # Combine all information for each product into a dictionary and add it to the `products` dictionary
-        for product_name, product_rate, product_brand, product_link, sub_cat, sub_rk,sub_pr in zip(product_names, product_rates, product_brands, product_links, sub_category, sub_rank,sub_price):
-          name = product_name.get_text().strip()
+        for product_name,product_id, product_rate, product_brand, product_link, sub_cat, sub_rk,sub_pr in zip(product_names,product_ids, product_rates, product_brands, product_links, sub_category, sub_rank,sub_price):
+          id = product_id.get('data-id').strip()
           rating = product_rate.get_text().strip()
+          name = product_name.get_text().strip()
           brand = product_brand.get_text().strip()
-          products[name] = {'brand': brand, 'rating': rating, 'sub_category': sub_cat, 'sub_rank': sub_rk,"sub_price":sub_pr, 'link': "https://trendyol.com"+product_link}
-    for product_name, product_info in products.items():
-        all_products.append([text, product_name, product_info['brand'], product_info['rating'], product_info['sub_category'].replace(" kategorisinde", ""), product_info['sub_rank'],product_info['sub_price'],product_info['link']])
+          products[id] = {"name":name,'brand': brand, 'rating': rating, 'sub_category': sub_cat, 'sub_rank': sub_rk,"sub_price":sub_pr, 'link': "https://trendyol.com"+product_link}
+    for product_id, product_info in products.items():
+        all_products.append([text, product_id,product_info["name"], product_info['brand'], product_info['rating'], product_info['sub_category'].replace(" kategorisinde", ""), product_info['sub_rank'],product_info['sub_price'],product_info['link']])
 
 # Create a pandas DataFrame from the all_products list of dictionaries
-df = pd.DataFrame(all_products, columns=['Main Category', 'Name', 'Brand', 'Rating', 'Sub Category', 'Sub Rank',"Price", 'Link'])
+df = pd.DataFrame(all_products, columns=['Main Category',"id", 'Name', 'Brand', 'Rating', 'Sub Category', 'Sub Rank',"Price", 'Link'])
 
 # Count the number of products from each brand and create a new DataFrame
 brand_counts = df['Brand'].value_counts().reset_index()
